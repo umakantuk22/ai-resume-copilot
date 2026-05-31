@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Resume Copilot - Premium Dashboard</title>
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { background-color: #0f172a; color: #f8fafc; font-family: system-ui, -apple-system, sans-serif; }
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #1e293b; }
+        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
+    </style>
+</head>
+<body>
+
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState } = React;
+
+        function App() {
+            // State tracking hooks to bind form elements
+            const [resumeText, setResumeText] = useState("");
+            const [jobDesc, setJobDesc] = useState("");
+            const [loading, setLoading] = useState(false);
+            const [report, setReport] = useState(null);
+
+            const handleAnalyze = async () => {
+                if (!resumeText.trim() || !jobDesc.trim()) {
+                    alert("Please fill in both the Resume and the Job Description fields.");
+                    return;
+                }
+
+                // Dynamically fetch values from the geographic input fields
+                const country = document.getElementById("targetCountry")?.value || "India";
+                const cities = document.getElementById("targetCities")?.value || "";
+
+                setLoading(true);
+                setReport(null);
+                
+                // Ensure previous resume cards hide on a fresh execution loop
+                const oldCard = document.getElementById("tailoredResumeCard");
+                if (oldCard) oldCard.classList.add("hidden");
+
+                try {
+                    // High-durability tracking system to prevent browser timeout drops on large AI requests
+                    const controller = new AbortController();
+                    const timeoutId = setTimeout(() => controller.abort(), 120000); // 120 seconds
+
+                    // Send user texts directly to our running Node.js local Express API backend gateway
+                    const response = await fetch("http://127.0.0.1:5000/api/analyze", {
+                        method: "POST",
+                        headers: { 
+                            "Content-Type": "application/json",
+                            "Accept": "application/json"
+                        },
+                        body: JSON.stringify({
+                            resume_chunks: resumeText,
+                            job_description: jobDesc,
+                            country: country,
+                            cities: cities
+                        }),
+                        signal: controller.signal
+                    });
+
+                    clearTimeout(timeoutId);
+
+                    const data = await response.json();
+                    if (data.error) throw new Error(data.details || data.error);
+                    
+                    setReport(data);
+
+                    // Extract and inject the tailored resume strings straight into the new UI display area
+                    if (data.analysis && data.analysis.tailored_best_fit_resume) {
+                        setTimeout(() => {
+                            const resumeTextEl = document.getElementById("tailoredResumeText");
+                            const resumeCardEl = document.getElementById("tailoredResumeCard");
+                            if (resumeTextEl && resumeCardEl) {
+                                resumeTextEl.innerText = data.analysis.tailored_best_fit_resume;
+                                resumeCardEl.classList.remove("hidden");
+                            }
+                        }, 50);
+                    }
+
+                } catch (err) {
+                    if (err.name === 'AbortError') {
+                        alert("Pipeline Analysis Timeout: The text data is massive and the AI engine is still calculating. Give it another moment and try again.");
+                    } else {
+                        alert("Pipeline Processing Failure: Ensure backend server is running on port 5000 and payload parsing matches.");
+                    }
+                    console.error(err);
+                } finally {
+                    setLoading(false);
+                }
+            };
+
+            return (
+                <div className="min-h-screen p-6 md:p-12 max-w-7xl mx-auto">
+                    {/* Header Banner */}
+                    <header className="mb-10 text-center md:text-left border-b border-slate-800 pb-6">
+                        <h1 className="text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-blue-500">
+                            AI Resume Copilot ⚡
+                        </h1>
+                        <p className="text-slate-400 mt-2 text-sm md:text-base">
+                            High-Resiliency RAG Evaluation Core Engine • Premium Recruiter Personas
+                        </p>
+                    </header>
+
+                    {/* Input Columns */}
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-6">
+                        <div className="bg-slate-900 border border-slate-800 rounded-xl p-5 shadow-xl">
+                            <label className="block text-emerald-400 font-bold mb-2 tracking-wide uppercase text-xs">
+                                Candidate Profile / Resume Data
+                            </label>
+                            <textarea 
+                                className="w-full h-64 bg-slate-950 border border-slate-800 rounded-lg p-3 text-sm text-slate-300 focus:outline-none focus:border-emerald-500 transition-colors resize-none"
+                                placeholder="Paste candidate credentials, technical summaries, or profile data chunks here..."
+                                value={resumeText}
+                                onChange={(e) => setResumeText(e.target.value)}
+                            />
+                        </div>
+
+                        <div className="bg-slate-900 border border-slate-800 rounded-xl p-5 shadow-xl">
+                            <label className="block text-blue-400 font-bold mb-2 tracking-wide uppercase text-xs">
+                                Target Job Description Requirements
+                            </label>
+                            <textarea 
+                                className="w-full h-64 bg-slate-950 border border-slate-800 rounded-lg p-3 text-sm text-slate-300 focus:outline-none focus:border-blue-500 transition-colors resize-none"
+                                placeholder="Paste structural target corporate mandates, expected skills, and role expectations here..."
+                                value={jobDesc}
+                                onChange={(e) => setJobDesc(e.target.value)}
+                            />
+                        </div>
+                    </div>
+
+                    {/* GEOGRAPHIC TARGETING ENGINE PANEL */}
+                    <div className="bg-slate-900 border border-slate-800 rounded-xl p-6 mb-8 shadow-xl">
+                        <h3 class="text-xs font-bold text-slate-300 uppercase tracking-widest mb-4 flex items-center gap-2">
+                            📍 Geographic Targeting Settings
+                        </h3>
+                        <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
+                            <div>
+                                <label className="block text-[11px] font-medium text-slate-400 mb-1">Target Country</label>
+                                <input type="text" id="targetCountry" defaultValue="India" className="w-full bg-slate-950 border border-slate-800 rounded-lg p-2.5 text-sm text-slate-200 focus:outline-none focus:border-blue-500" placeholder="e.g. India" />
+                            </div>
+                            <div className="md:col-span-4">
+                                <label className="block text-[11px] font-medium text-slate-400 mb-1">Target Cities (Up to 4 locations, comma separated)</label>
+                                <input type="text" id="targetCities" defaultValue="Noida, Gurugram, Delhi, Bangalore" className="w-full bg-slate-950 border border-slate-800 rounded-lg p-2.5 text-sm text-slate-200 focus:outline-none focus:border-blue-500" placeholder="e.g. Noida, Gurugram, Delhi, Bangalore" />
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Action Execution Controller */}
+                    <button 
+                        onClick={handleAnalyze}
+                        disabled={loading}
+                        className={`w-full py-4 rounded-xl font-bold tracking-wider text-sm uppercase shadow-lg border transition-all duration-300 ${
+                            loading 
+                            ? "bg-slate-800 text-slate-500 border-slate-700 cursor-not-allowed animate-pulse" 
+                            : "bg-gradient-to-r from-emerald-500 to-blue-600 text-white border-transparent hover:scale-[1.01] hover:brightness-110 active:scale-100"
+                        }`}
+                    >
+                        {loading ? "Orchestrating Semantic AI Failover Pipeline Chaining..." : "Execute Professional Matching Matrix"}
+                    </button>
+
+                    {/* TAILORED BEST-FIT RESUME DISPLAY AREA (Placed precisely above results) */}
+                    <div id="tailoredResumeCard" className="hidden bg-slate-900 border border-emerald-800/40 rounded-xl p-6 mt-8 shadow-2xl">
+                        <div className="flex items-center justify-between mb-4 border-b border-slate-800 pb-4">
+                            <h3 className="text-sm font-bold text-emerald-400 uppercase tracking-widest flex items-center gap-2">
+                                ✨ ATS-Optimized Best-Fit Resume (Copy & Use)
+                            </h3>
+                            <button onClick={() => { navigator.clipboard.writeText(document.getElementById('tailoredResumeText').innerText); alert('Resume copied to clipboard!') }} className="bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold px-3 py-1.5 rounded transition">
+                                📋 Copy Optimized Resume
+                            </button>
+                        </div>
+                        <pre id="tailoredResumeText" className="w-full bg-slate-950 border border-slate-800 rounded-lg p-4 font-mono text-xs text-slate-300 overflow-x-auto whitespace-pre-wrap leading-relaxed"></pre>
+                    </div>
+
+                    {/* Output Report Display Block */}
+                    {report && (
+                        <div className="mt-10 space-y-10 animate-fadeIn">
+                            <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 md:p-8 shadow-2xl">
+                                <div className="flex flex-col md:flex-row items-center justify-between border-b border-slate-800 pb-6 mb-6">
+                                    <div>
+                                        <h2 className="text-2xl font-bold text-slate-100">Hiring Assessment Report</h2>
+                                        <p className="text-slate-500 text-xs mt-1">Processed successfully via live OpenRouter cloud routing clusters</p>
+                                    </div>
+                                    <div className="mt-4 md:mt-0 flex items-center gap-4 bg-slate-950 px-6 py-3 rounded-xl border border-slate-800">
+                                        <span className="text-xs font-bold text-slate-400 uppercase tracking-widest">Match Score</span>
+                                        <span className={`text-3xl font-black ${
+                                            report.analysis.match_score >= 70 ? "text-emerald-400" : report.analysis.match_score >= 40 ? "text-amber-400" : "text-rose-500"
+                                        }`}>{report.analysis.match_score}%</span>
+                                    </div>
+                                </div>
+
+                                {/* Skills Grid Section */}
+                                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                                    <div className="bg-slate-950 p-4 rounded-xl border border-slate-800">
+                                        <h3 className="text-xs font-bold text-emerald-400 uppercase tracking-wider mb-2">Matched Competencies</h3>
+                                        <div className="flex flex-wrap gap-2">
+                                            {report.analysis.skills_analysis.matched_skills && report.analysis.skills_analysis.matched_skills.map((s, i) => (
+                                                <span key={i} className="text-xs bg-emerald-950/50 text-emerald-400 px-2 py-1 rounded border border-emerald-900/50">{s}</span>
+                                            ))}
+                                        </div>
+                                    </div>
+                                    <div className="bg-slate-950 p-4 rounded-xl border border-slate-800">
+                                        <h3 className="text-xs font-bold text-rose-400 uppercase tracking-wider mb-2">Missing Capabilities</h3>
+                                        <div className="flex flex-wrap gap-2">
+                                            {report.analysis.skills_analysis.missing_skills && report.analysis.skills_analysis.missing_skills.map((s, i) => (
+                                                <span key={i} className="text-xs bg-rose-950/50 text-rose-400 px-2 py-1 rounded border border-rose-900/50">{s}</span>
+                                            ))}
+                                        </div>
+                                    </div>
+                                    <div className="bg-slate-950 p-4 rounded-xl border border-slate-800">
+                                        <h3 className="text-xs font-bold text-amber-400 uppercase tracking-wider mb-2">Partial Gaps</h3>
+                                        <div className="flex flex-wrap gap-2">
+                                            {report.analysis.skills_analysis.partially_matched_skills && report.analysis.skills_analysis.partially_matched_skills.map((s, i) => (
+                                                <span key={i} className="text-xs bg-amber-950/50 text-amber-400 px-2 py-1 rounded border border-amber-900/50">{s}</span>
+                                            ))}
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {/* Learning Roadmap Plan Details */}
+                                <div className="mb-8">
+                                    <h3 className="text-sm font-bold text-slate-300 uppercase tracking-widest border-b border-slate-800 pb-2 mb-4">Targeted Upskilling Learning Map</h3>
+                                    <div className="space-y-4">
+                                        {report.analysis.missing_skills_analysis && report.analysis.missing_skills_analysis.map((m, i) => (
+                                            <div key={i} className="bg-slate-950 p-4 rounded-xl border border-slate-800/80">
+                                                <div className="flex justify-between items-center mb-1">
+                                                    <h4 className="text-sm font-bold text-slate-200">{m.skill}</h4>
+                                                    <span className="text-[10px] bg-slate-800 text-slate-400 px-2 py-0.5 rounded font-mono">GAP CORE</span>
+                                                </div>
+                                                <p className="text-xs text-slate-400 mb-2"><strong className="text-slate-300">Why Critical:</strong> {m.why_important}</p>
+                                                <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mt-2 pt-2 border-t border-slate-900 text-xs">
+                                                    <div className="bg-slate-900/40 p-2 rounded"><strong className="text-emerald-400 block mb-0.5">Study Strategy:</strong> {m.how_to_learn}</div>
+                                                    <div className="bg-slate-900/40 p-2 rounded"><strong className="text-blue-400 block mb-0.5">Production Project to Build:</strong> {m.project_suggestion}</div>
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+
+                                {/* Tailored Interview Prompts */}
+                                <div className="mb-8">
+                                    <h3 className="text-sm font-bold text-slate-300 uppercase tracking-widest border-b border-slate-800 pb-2 mb-4">Tailored Technical Interview Prompts</h3>
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                        {report.analysis.interview_questions && report.analysis.interview_questions.map((q, i) => (
+                                            <div key={i} className="bg-slate-950 p-4 rounded-xl border border-slate-800 flex flex-col justify-between">
+                                                <div>
+                                                    <span className="text-[10px] font-mono tracking-widest uppercase bg-slate-800 text-slate-300 px-2 py-0.5 rounded">{q.type}</span>
+                                                    <p className="text-xs font-semibold text-slate-300 mt-3 italic">"{q.question}"</p>
+                                                </div>
+                                                <p className="text-xs text-slate-400 mt-4 pt-2 border-t border-slate-900"><strong className="text-slate-300">Senior Evaluation Focus:</strong> {q.expected_focus}</p>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+
+                                {/* ATS Bullet Refactoring Layout */}
+                                <div className="mb-8">
+                                    <h3 className="text-sm font-bold text-slate-300 uppercase tracking-widest border-b border-slate-800 pb-2 mb-4">ATS Metrics & Resume Refactoring Suggestions</h3>
+                                    <div className="space-y-4">
+                                        {report.analysis.resume_improvements && report.analysis.resume_improvements.map((imp, i) => (
+                                            <div key={i} className="bg-slate-950 p-4 rounded-xl border border-slate-800 text-xs">
+                                                <h4 className="font-bold text-amber-400 mb-1">Target Section: {imp.section}</h4>
+                                                <p className="text-slate-400 mb-2"><strong className="text-slate-300">Detected Defect:</strong> {imp.issue}</p>
+                                                <div className="bg-slate-900 p-3 rounded border border-slate-800/60 font-mono text-slate-200">
+                                                    <span className="text-emerald-400 font-bold block mb-1 font-sans text-[10px] uppercase tracking-wider">Optimized ATS Version:</span>
+                                                    {imp.improved_version}
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+
+                                {/* Summary Overview Block */}
+                                <div className="bg-slate-950 p-5 rounded-xl border border-slate-800 text-xs">
+                                    <h3 className="text-sm font-bold text-slate-200 mb-2">Executive Summary</h3>
+                                    <p className="text-slate-400 leading-relaxed mb-4">{report.analysis.final_summary.summary}</p>
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4 border-t border-slate-900">
+                                        <div>
+                                            <strong className="text-emerald-400 block mb-1">Standout Profile Strengths:</strong>
+                                            <ul className="list-disc list-inside text-slate-400 space-y-0.5">
+                                                {report.analysis.final_summary.top_3_strengths && report.analysis.final_summary.top_3_strengths.map((str, idx) => <li key={idx}>{str}</li>)}
+                                            </ul>
+                                        </div>
+                                        <div>
+                                            <strong className="text-rose-400 block mb-1">Immediate Action Steps:</strong>
+                                            <ul className="list-disc list-inside text-slate-400 space-y-0.5">
+                                                {report.analysis.final_summary.next_steps && report.analysis.final_summary.next_steps.map((step, idx) => <li key={idx}>{step}</li>)}
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Live Job Recommendation Feed Segment */}
+                            <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 md:p-8 shadow-2xl">
+                                <h3 className="text-xl font-bold text-slate-100 mb-1">Live Multi-Portal Location-Targeted Career Feed</h3>
+                                <p className="text-slate-500 text-xs mb-6">Real-time localized open opportunities mapped dynamically across LinkedIn, Internshala, Wellfound, and Indeed</p>
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    {report.jobs && report.jobs.map((job, idx) => (
+                                        <div key={idx} className="bg-slate-950 p-4 rounded-xl border border-slate-800 flex flex-col justify-between hover:border-slate-700 transition-colors">
+                                            <div>
+                                                <div className="flex justify-between items-start gap-2 mb-2">
+                                                    <h4 className="text-sm font-bold text-slate-200 line-clamp-1">{job.title}</h4>
+                                                    <span className="text-[9px] font-bold tracking-wider bg-blue-950/60 text-blue-400 px-2 py-0.5 rounded border border-blue-900/40 uppercase font-mono">{job.source}</span>
+                                                </div>
+                                                <p className="text-xs font-semibold text-slate-400">{job.company}</p>
+                                                <p className="text-[11px] text-slate-500 mt-1">📍 Location Tracker: {job.location}</p>
+                                            </div>
+                                            <a 
+                                                href={job.url} 
+                                                target="_blank" 
+                                                rel="noopener noreferrer"
+                                                className="mt-4 block w-full text-center bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold py-2 rounded-lg text-xs tracking-wide border border-slate-700 transition-colors"
+                                            >
+                                                Apply For Position 🚀
+                                            </a>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        </div>
+                    )}
+                </div>
+            );
+        }
+
+        // Clean, corrected standard React 18 browser initialization sequence
+        const container = document.getElementById('root');
+        const root = ReactDOM.createRoot(container);
+        root.render(<App />);
+    </script>
+</body>
+</html>

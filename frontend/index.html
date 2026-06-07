@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AI Resume Copilot Pro - Top 1% Developer Studio</title>
-    <!-- Core Stable CDN Deployments -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
@@ -47,7 +46,6 @@
 <body>
 
     <div class="min-h-screen flex flex-col antialiased bg-[#0b0f19]">
-        <!-- Top App Bar Navigation -->
         <header class="border-b border-slate-800/80 bg-slate-900/40 backdrop-blur-md px-6 py-4 sticky top-0 z-50">
             <div class="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
                 <div class="flex items-center gap-3">
@@ -60,15 +58,12 @@
             </div>
         </header>
 
-        <!-- Main Fluid Dashboard Layout -->
         <main class="flex-1 max-w-7xl w-full mx-auto p-4 md:p-8 grid grid-cols-1 lg:grid-cols-12 gap-8">
             
-            <!-- LEFT CONTROL GRID QUADRANT (5 COLS) -->
             <div class="lg:col-span-5 space-y-6">
                 <div class="bg-slate-900/60 border border-slate-800/80 rounded-2xl p-5 shadow-xl backdrop-blur-sm space-y-5">
                     <h2 class="text-xs font-bold text-slate-400 uppercase tracking-widest flex items-center gap-2">📂 Studio Core Control</h2>
                     
-                    <!-- 🎨 ACTIVE LAYOUT SELECTOR MATRIX -->
                     <div class="space-y-2">
                         <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wide">🎨 Choose Resume Layout Template</label>
                         <div class="grid grid-cols-3 gap-2">
@@ -78,7 +73,6 @@
                         </div>
                     </div>
 
-                    <!-- 📐 TOP 1% HIGH-PRECISION TYPESETTING ENGINE SLIDER -->
                     <div class="bg-slate-950/60 p-4 rounded-xl border border-slate-800/60 space-y-2">
                         <div class="flex justify-between items-center">
                             <label class="block text-xs font-semibold text-amber-400 uppercase tracking-wide">📐 Precision Line Spacing Adjuster</label>
@@ -109,24 +103,19 @@
                 </button>
             </div>
 
-            <!-- RIGHT ANALYTICS & CANVAS VIEWPORT (7 COLS) -->
             <div class="lg:col-span-7 space-y-6">
-                <!-- Idle State Box -->
                 <div id="dashboardPlaceholderStateBlock" class="h-full min-h-[520px] border border-dashed border-slate-800 rounded-2xl flex flex-col items-center justify-center p-8 text-center bg-slate-900/10">
                     <h3 class="text-slate-300 font-bold text-sm">Awaiting Pipeline Activation</h3>
                     <p class="text-xs text-slate-500 max-w-sm mt-1.5">Dispatch your workspace variables on the left panel. The complete intelligence matrix will generate right here.</p>
                 </div>
 
-                <!-- Loading State Block -->
                 <div id="dashboardLoadingStateBlock" class="hidden h-[520px] bg-slate-900/60 border border-slate-800/80 rounded-2xl flex flex-col items-center justify-center text-slate-400 text-xs font-mono space-y-3">
                     <div class="w-8 h-8 border-4 border-cyan-500 border-t-transparent rounded-full animate-spin"></div>
                     <div class="tracking-widest text-cyan-400 font-semibold uppercase animate-pulse">Running Optimization Engines, RAG Metrics & Career Streams...</div>
                 </div>
 
-                <!-- OUTPUT ANALYSIS PRESENTATION AREA -->
                 <div id="dashboardActiveOutputStateBlock" class="hidden space-y-6 animate-fadeIn">
                     
-                    <!-- 📊 RAG SCORECARD AND EVALUATION DATA ROW -->
                     <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
                         <div class="bg-slate-900/80 border border-slate-800 p-4 rounded-xl text-center flex flex-col justify-center items-center">
                             <span class="text-xs text-slate-400 uppercase font-bold tracking-wider">🎯 ATS Match Index</span>
@@ -144,7 +133,6 @@
                         </div>
                     </div>
 
-                    <!-- 🔍 RAG GAP ANALYSIS MATRIX COMPONENT -->
                     <div class="bg-slate-900 border border-slate-800 rounded-xl p-5 space-y-4">
                         <h3 class="text-xs font-bold text-gradient bg-gradient-to-r from-emerald-400 to-cyan-400 bg-clip-text text-transparent uppercase tracking-widest flex items-center gap-2">🔍 Resume vs JD Gap Analysis Matrix</h3>
                         <div class="grid grid-cols-1 gap-3 text-xs">
@@ -163,7 +151,6 @@
                         </div>
                     </div>
 
-                    <!-- 🖨️ PREVIEW CANVAS CONTAINER WITH WYSIWYG CONTROLS -->
                     <div class="bg-slate-900 border border-slate-800/90 rounded-2xl p-5 shadow-2xl space-y-4">
                         <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between border-b border-slate-800 pb-3 gap-2">
                             <div>
@@ -178,21 +165,17 @@
                             </button>
                         </div>
 
-                        <!-- CANVAS WRAPPER (Contenteditable turned explicitly on with dynamic telemetry hook listeners) -->
                         <div class="max-h-[500px] overflow-y-auto bg-slate-950 p-3 rounded-xl border border-slate-900 shadow-inner">
                             <div id="printableDocumentNodeFrame" contenteditable="true" oninput="executeLiveTextTelemetryRecalculation()" class="resume-print-wrapper bg-white text-black rounded-lg shadow"></div>
                         </div>
                     </div>
 
-                    <!-- 💼 EXPANDED JOB PORTAL ROUTER (8 PLATFORMS INTEGRATED) -->
                     <div class="bg-slate-900 border border-slate-800 rounded-xl p-5 space-y-4">
                         <h3 class="text-xs font-bold text-cyan-400 uppercase tracking-widest">💼 Live Target Application Portals (8 Active Feeds)</h3>
                         <div id="liveJobsFeedContainerGrid" class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <!-- Clickable jobs across 8 platforms render dynamically here -->
-                        </div>
+                            </div>
                     </div>
 
-                    <!-- 🚀 TOPIC-SPECIFIC INTERVIEW PREPARATION HUB WITH VERIFIED LINKS -->
                     <div class="bg-slate-900 border border-slate-800 rounded-xl p-5 space-y-4">
                         <h3 class="text-xs font-bold text-emerald-400 uppercase tracking-widest">🚀 Deep-Dive Interview Topic Preparation Hub</h3>
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
@@ -219,15 +202,13 @@
                         </div>
                     </div>
 
-                    <!-- 🧠 INTERVIEW ACCORDION ROADMAP PREPARATION MODULE -->
                     <div class="bg-slate-900 border border-slate-800 rounded-xl overflow-hidden shadow-lg">
                         <div class="px-5 py-4 bg-slate-900/40 border-b border-slate-800 flex justify-between items-center">
                             <h3 class="text-xs font-bold text-amber-400 uppercase tracking-widest">🧠 Predictive Technical Interview Simulator</h3>
                             <span class="text-[10px] text-slate-500 font-mono">Company Profiling</span>
                         </div>
                         <div id="interviewQuestionsWrapperList" class="p-5 space-y-4 bg-slate-950/30 max-h-[350px] overflow-y-auto">
-                            <!-- Dynamically loaded corporate interview loops -->
-                        </div>
+                            </div>
                     </div>
 
                 </div>
@@ -235,7 +216,6 @@
         </main>
     </div>
 
-    <!-- PIPELINE ARCHITECTURE LOGIC ENGINE RUNTIMES -->
     <script>
         let selectedTemplateStyle = 'classic';
         let latestParsedResumeDataLines = [];
@@ -407,7 +387,14 @@
                     resumeInputText = UMAKANT_BASE_PROFILE_TEXT;
                 }
                 
-                const response = await fetch("http://127.0.0.1:5000/api/analyze", {
+                // --------------------------------------------------------
+                // 🛰️ DYNAMIC ENDPOINT RESOLUTION NODE (TOP 1% ARCHITECTURE)
+                // --------------------------------------------------------
+                const BACKEND_ENDPOINT = window.location.hostname === "127.0.0.1" || window.location.hostname === "localhost"
+                    ? "http://127.0.0.1:5000/api/analyze"
+                    : "https://ai-resume-copilot-backend.onrender.com/api/analyze"; // 👈 Your production URL path gets automatically mapped here
+
+                const response = await fetch(BACKEND_ENDPOINT, {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({

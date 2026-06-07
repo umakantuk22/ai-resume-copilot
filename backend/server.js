@@ -45,7 +45,7 @@ setInterval(cleanExpiredCacheEntries, 5 * 60 * 1000); // Runs background garbage
 
 // Enhanced security headers to link frontend port 5500 cleanly with backend port 5000
 app.use(cors({
-    origin: true,
+    origin: ["http://127.0.0.1:5500", "http://localhost:5500", "http://127.0.0.1:5000"],
     methods: ["GET", "POST"],
     credentials: true
 }));
@@ -64,12 +64,20 @@ app.get('/api/health', (req, res) => {
 // 2. CORE TOP 1% ANALYSIS PIPELINE ENDPOINT WITH LIVE CACHE LAYER
 app.post('/api/analyze', async (req, res) => {
     try {
-        // Destructure geographic targeting fields from incoming payload
-        const { resume_chunks, job_description, country, cities } = req.body;
+        // Destructure payload parameters passed securely from frontend client
+        const { resume_chunks, job_description, country, cities, format_mode } = req.body;
 
-        if (!resume_chunks || !job_description) {
+        if (!resume_chunks || !resume_chunks.trim()) {
             return res.status(400).json({ 
-                error: "Invalid request payload. Ensure 'resume_chunks' and 'job_description' text fields are populated." 
+                error: "Invalid request payload.",
+                details: "The extracted text payload from the resume file node (resume_chunks) is missing or empty."
+            });
+        }
+
+        if (!job_description || !job_description.trim()) {
+            return res.status(400).json({ 
+                error: "Invalid request payload.",
+                details: "Target job description specification field is blank."
             });
         }
 
@@ -100,15 +108,25 @@ app.post('/api/analyze', async (req, res) => {
         // Step A: Run local RAG pipeline
         const matchingJobContext = await retrieveRelevantJobContext(resume_chunks, job_description);
 
-        // Step B: Build customized final prompt
+        // Step B: Formulate formatting directives dynamically matching user instructions
+        let dynamicLayoutDirective = "";
+        if (format_mode === "preserve") {
+            dynamicLayoutDirective = "CRITICAL DIRECTIVE: You MUST look closely at the candidate's incoming resume layout structure, ordering, and headers. Retain their EXACT heading titles, layout format, and structural order. Do not change the overall blueprint; only optimize the internal bullet points to inject high-signal keywords and quantify achievements.";
+        } else {
+            dynamicLayoutDirective = "Format the optimized text outputs into highly scannable sections cleanly demarcated by clear Markdown headers (e.g., ## Professional Experience) for responsive layout template generation mapping.";
+        }
+
+        const augmentedSystemRole = `${SYSTEM_ROLE}\n\n${dynamicLayoutDirective}`;
+
+        // Step C: Build customized final prompt
         const compiledUserPrompt = buildEvaluationPrompt(resume_chunks, matchingJobContext);
 
         console.log("🤖 [Pipeline API] Forwarding parameters to OpenRouter Multi-Model Failover Chain... ");
         
-        // Step C: Invoke high-resiliency server-side AI evaluation routing
-        const rawAiOutput = await executeResilientAIAnalysis(SYSTEM_ROLE, compiledUserPrompt);
+        // Step D: Invoke high-resiliency server-side AI evaluation routing
+        const rawAiOutput = await executeResilientAIAnalysis(augmentedSystemRole, compiledUserPrompt);
 
-        // Step D: Parse JSON object with fallback recovery heuristics (using clean Regex expressions)
+        // Step E: Parse JSON object with fallback recovery heuristics (using clean Regex expressions)
         let structuredAnalysisReport;
         try {
             const sanitizedText = rawAiOutput.replace(/^```json\s*|```$/g, '').trim();
@@ -158,7 +176,7 @@ app.post('/api/analyze', async (req, res) => {
 
         console.log("🔍 [Pipeline API] Triggering live background career opportunity scans...");
         
-        // Step E: Run live job recommender stream utilizing geographic targeting parameters
+        // Step F: Run live job recommender stream utilizing geographic targeting parameters
         const liveJobRecommendations = await discoverLiveJobs(resume_chunks, 4, country, cities);
 
         console.log("✅ [Pipeline API] Complete architectural cycle finalized successfully! Dispatched final response.\n");
@@ -176,7 +194,7 @@ app.post('/api/analyze', async (req, res) => {
             expiresAt: Date.now() + CACHE_TTL_MS
         });
 
-        // Step F: Return single unified response payload
+        // Step G: Return single unified response payload
         return res.json(finalResponsePayload);
 
     } catch (globalError) {

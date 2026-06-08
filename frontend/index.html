@@ -173,7 +173,7 @@
                     <div class="bg-slate-900 border border-slate-800 rounded-xl p-5 space-y-4">
                         <h3 class="text-xs font-bold text-cyan-400 uppercase tracking-widest">💼 Live Target Application Portals (8 Active Feeds)</h3>
                         <div id="liveJobsFeedContainerGrid" class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            </div>
+                        </div>
                     </div>
 
                     <div class="bg-slate-900 border border-slate-800 rounded-xl p-5 space-y-4">
@@ -208,7 +208,7 @@
                             <span class="text-[10px] text-slate-500 font-mono">Company Profiling</span>
                         </div>
                         <div id="interviewQuestionsWrapperList" class="p-5 space-y-4 bg-slate-950/30 max-h-[350px] overflow-y-auto">
-                            </div>
+                        </div>
                     </div>
 
                 </div>
@@ -392,7 +392,7 @@
                 // --------------------------------------------------------
                 const BACKEND_ENDPOINT = window.location.hostname === "127.0.0.1" || window.location.hostname === "localhost"
                     ? "http://127.0.0.1:5000/api/analyze"
-                    : "https://ai-resume-copilot-backend.onrender.com/api/analyze"; // 👈 Your production URL path gets automatically mapped here
+                    : "https://ai-resume-copilot-backend.onrender.com/api/analyze"; // 👈 Precise deployment target
 
                 const response = await fetch(BACKEND_ENDPOINT, {
                     method: "POST",

@@ -59,7 +59,7 @@ async function executeResilientAIAnalysis(systemInstruction, userPrompt) {
         // ----------------------------------------------------------------
         console.log("🛰️ [LLM Router] Activating Tier 2 automatic emergency backup fallback layer...");
         const maxRetries = 2;
-        let delay = 1500; // Increased sleep step to allow server traffic slots to clear out
+        let delay = 1500; 
 
         for (let attempt = 1; attempt <= maxRetries; attempt++) {
             try {
@@ -69,7 +69,6 @@ async function executeResilientAIAnalysis(systemInstruction, userPrompt) {
                     throw new Error("GEMINI_API_KEY is missing from environment secrets configuration.");
                 }
 
-                // Explicitly targeting the core production standard identifier mapping format
                 const response = await ai.models.generateContent({
                     model: 'gemini-2.5-flash',
                     contents: userPrompt,
@@ -93,35 +92,34 @@ async function executeResilientAIAnalysis(systemInstruction, userPrompt) {
                 }
             }
         }
+    }
 
-        // ----------------------------------------------------------------
-        // 🚀 TIER 3: STABLE PRODUCTION POOL (RECONCILED MAPPING FORMAT)
-        // ----------------------------------------------------------------
-        try {
-            console.log("🛰️ [LLM Router Tier 3] Rerouting payload to verified stable Gemini 2.5 production cluster...");
-            
-            // Reconciling model parameter directly to the global production standard endpoint string
-            const response = await ai.models.generateContent({
-                model: 'gemini-2.5-flash',
-                contents: userPrompt,
-                config: {
-                    systemInstruction: systemInstruction,
-                    responseMimeType: "application/json",
-                    temperature: 0.1 // Dropped temperature for strict validation mapping compliance
-                }
-            });
-
-            if (!response.text) {
-                throw new Error("Received an empty string layout from the Gemini gateway.");
+    // ----------------------------------------------------------------
+    // 🚀 TIER 3: STABLE PRODUCTION POOL (RECONCILED MAPPING FORMAT)
+    // ----------------------------------------------------------------
+    try {
+        console.log("🛰️ [LLM Router Tier 3] Rerouting payload to verified stable Gemini 2.5 production cluster...");
+        
+        const response = await ai.models.generateContent({
+            model: 'gemini-2.5-flash',
+            contents: userPrompt,
+            config: {
+                systemInstruction: systemInstruction,
+                responseMimeType: "application/json",
+                temperature: 0.1 
             }
+        });
 
-            console.log("✅ [LLM Router Tier 3] Fully tailored resume generated successfully via Gemini stable production pool!");
-            return response.text;
-
-        } catch (tier3Error) {
-            console.error("❌ [LLM Router Critical Crash] All server clusters exhausted:", tier3Error.message);
-            throw tier3Error;
+        if (!response.text) {
+            throw new Error("Received an empty string layout from the Gemini gateway.");
         }
+
+        console.log("✅ [LLM Router Tier 3] Fully tailored resume generated successfully via Gemini stable production pool!");
+        return response.text;
+
+    } catch (tier3Error) {
+        console.error("❌ [LLM Router Critical Crash] All server clusters exhausted:", tier3Error.message);
+        throw tier3Error;
     }
 }
 

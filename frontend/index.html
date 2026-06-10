@@ -229,7 +229,7 @@
             Projects: 
             - Cult Fitness App (MERN Stack): Developed class booking and workout plan services with secure JWT authentication and scalable RESTful APIs.
             - Real-time Chat Application (MERN Stack): Implemented real-time messaging using WebSockets with low latency.
-            Achievements: Solved 200+ LeetCode problems optimizing space and time complexity loops.
+            - Achievements: Solved 200+ LeetCode problems optimizing space and time complexity loops.
         `;
 
         // 📐 TOP 1% LINE SPACING RE-RENDERING PIPELINE ENGINE CONTROLS
@@ -388,11 +388,9 @@
                 }
                 
                 // --------------------------------------------------------
-                // 🛰️ DYNAMIC ENDPOINT RESOLUTION NODE (TOP 1% ARCHITECTURE)
+                // 🛰️ HARDCODED PRODUCTION BACKEND ENGINE ROUTE
                 // --------------------------------------------------------
-                const BACKEND_ENDPOINT = window.location.hostname === "127.0.0.1" || window.location.hostname === "localhost"
-                    ? "http://127.0.0.1:5000/api/analyze"
-                    : "https://ai-resume-copilot-backend.onrender.com/api/analyze"; // 👈 Precise deployment target
+                const BACKEND_ENDPOINT = "https://ai-resume-copilot-backend.onrender.com/api/analyze";
 
                 const response = await fetch(BACKEND_ENDPOINT, {
                     method: "POST",

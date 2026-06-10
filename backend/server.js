@@ -43,12 +43,18 @@ function cleanExpiredCacheEntries() {
 setInterval(cleanExpiredCacheEntries, 5 * 60 * 1000); // Runs background garbage collection cycles every 5 minutes
 // ====================================================================
 
-// Enhanced security headers to link frontend port 5500 cleanly with backend port 5000
+// 🛰️ SECURITY AUTHORIZATION MATRIX: WHITELIST NEW PRODUCTION URL
 app.use(cors({
-    origin: ["http://127.0.0.1:5500", "http://localhost:5500", "http://127.0.0.1:5000"],
+    origin: [
+        "http://127.0.0.1:5500", 
+        "http://localhost:5500", 
+        "http://127.0.0.1:5000",
+        "https://uk-resume-copilot.vercel.app" // 👈 Explicitly authorizes your personalized domain link
+    ],
     methods: ["GET", "POST"],
     credentials: true
 }));
+
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ limit: '50mb', extended: true }));
 

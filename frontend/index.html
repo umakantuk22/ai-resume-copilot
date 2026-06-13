@@ -225,6 +225,10 @@
         let latestParsedResumeDataLines = [];
         let baseCleanComputedStringState = "";
         let dynamicAdjustmentLineHeight = 1.35;
+        
+        // 🛠️ DYNAMIC STRUCTURAL USER PROFILING ENTITIES
+        let extractedUserFullName = "Applicant Profile";
+        let extractedUserContactMetadata = "Processing contact matrices...";
 
         const UMAKANT_BASE_PROFILE_TEXT = `
             UMAKANT SHARMA | uksharma9758uk@gmail.com | +91-8650163800
@@ -270,6 +274,18 @@
             if (latestParsedResumeDataLines.length > 0) { applyDynamicStylingToCanvas(); }
         }
 
+        // 🧠 EXTRACT REAL NAME AND CONTACT INFO DYNAMICALLY FROM THE TOP OF THE RESUME TEXT
+        function extractIdentityHeadersFromPayload(rawTextPool) {
+            const lines = rawTextPool.split('\n').map(l => l.trim()).filter(l => l.length > 0);
+            if (lines.length > 0) {
+                extractedUserFullName = lines[0].replace(/##|#|\*\*|\*/g, '').trim();
+            }
+            if (lines.length > 1) {
+                let contactLine = lines.find(l => l.includes('@') || l.includes('|') || l.includes('+91'));
+                extractedUserContactMetadata = contactLine ? contactLine.replace(/##|#|\*\*|\*/g, '').trim() : lines[1];
+            }
+        }
+
         function applyDynamicStylingToCanvas() {
             const canvasContainer = document.getElementById("printableDocumentNodeFrame");
             canvasContainer.className = "resume-print-wrapper bg-white text-black rounded-lg shadow";
@@ -279,11 +295,8 @@
 
             let structuredHtmlCompiledString = `
                 <header>
-                    <h1>Umakant Sharma</h1>
-                    <div class="contact-info">
-                        Mathura, India | 📞 +91-8650163800 | ✉️ uksharma9758uk@gmail.com <br/>
-                        LinkedIn: linkedin.com/in/umakant | GitHub: github.com/UmakantSharma9758
-                    </div>
+                    <h1>${extractedUserFullName}</h1>
+                    <div class="contact-info">${extractedUserContactMetadata}</div>
                 </header>
             `;
 
@@ -292,6 +305,8 @@
                 let trimmed = line.trim();
                 let cleanLine = trimmed.replace(/\*\*|\*|##|###|#/g, "").trim();
                 if (!cleanLine) return;
+
+                if (cleanLine.toLowerCase() === extractedUserFullName.toLowerCase()) return;
 
                 if (trimmed.startsWith("##") || (trimmed.toUpperCase() === trimmed && trimmed.length < 40 && !trimmed.includes("|"))) {
                     if (inList) { structuredHtmlCompiledString += `</ul>`; inList = false; }
@@ -341,7 +356,6 @@
             let targetJobText = document.getElementById("targetJobDescriptionTextarea").value;
             let resumeInputText = document.getElementById("rawResumeTextarea").value;
             
-            // Capture geographic input variables dynamically
             let targetCountry = document.getElementById("targetCountryInput").value || "India";
             let targetCities = document.getElementById("targetCitiesInput").value || "Noida";
 
@@ -370,13 +384,15 @@
                 if (fileInputNode && fileInputNode.files[0]) {
                     try {
                         const extractedText = await extractTextFromPdfFileAsync(fileInputNode.files[0]);
-                        if (extractedText && extractedText.trim().length > 50) { resumeInputText = extractedText; }
+                        if (extractedText && extractedText.trim().length > 10) { resumeInputText = extractedText; }
                     } catch (fErr) { console.warn("PDF script fallback sequence activated."); }
                 }
 
                 if (!resumeInputText.trim()) { resumeInputText = UMAKANT_BASE_PROFILE_TEXT; }
                 
-                // 📡 PUBLIC REDIRECT ROUTE: TARGETING YOUR DEDICATED RENDER LINK DIRECTLY
+                // Run identity pipeline mapping
+                extractIdentityHeadersFromPayload(resumeInputText);
+                
                 const BACKEND_ENDPOINT = "https://ai-resume-copilot-backend.onrender.com/api/analyze";
 
                 const response = await fetch(BACKEND_ENDPOINT, {
@@ -403,8 +419,8 @@
                 const matchedArr = skillsAnalysis.matched_skills || ["Java", "JavaScript", "React.js", "Node.js"];
                 matchedSkillsDisplay.innerHTML = matchedArr.map(s => `<span class="inline-block bg-emerald-500/10 text-emerald-400 px-2 py-0.5 rounded border border-emerald-500/20 mr-1.5 mb-1.5 font-medium">${s}</span>`).join("");
 
-                const missingArr = skillsAnalysis.missing_skills || ["Advanced Systems Layouts"];
-                missingSkillsDisplay.innerHTML = missingArr.map(s => `<span class="inline-block bg-rose-500/10 text-rose-400 px-2 py-0.5 rounded border border-rose-500/20 mr-1.5 mb-1.5 font-medium">${s}</span>`).join("");
+                const missingArr = skillsAnalysis.missing_skills || [];
+                missingSkillsDisplay.innerHTML = missingArr.length > 0 ? missingArr.map(s => `<span class="inline-block bg-rose-500/10 text-rose-400 px-2 py-0.5 rounded border border-rose-500/20 mr-1.5 mb-1.5 font-medium">${s}</span>`).join("") : `<span class="text-xs text-slate-500">No major gaps identified!</span>`;
 
                 bridgeRoadmapDisplay.innerHTML = "";
                 const bridgeArr = data.analysis.missing_skills_analysis || [];
@@ -421,23 +437,29 @@
                 latestParsedResumeDataLines = tailoredRawContent.split("\n");
                 applyDynamicStylingToCanvas();
 
+                // 💼 FIXED: DYNAMIC JOB REDIRECT PIPELINE MAPPED TO SPECIFIC USER RESUME ROLES & LOCATIONS
                 jobsContainer.innerHTML = "";
                 const responseJobPool = data.jobs && data.jobs.length > 0 ? data.jobs : [];
+                
+                const sampleTitle = responseJobPool[0]?.title || "Software Engineer";
+                const encodedRole = encodeURIComponent(sampleTitle);
+                const encodedCity = encodeURIComponent(targetCities);
+
                 const platforms = [
-                    { name: "LinkedIn Pro", logo: "🔗", url: "https://www.linkedin.com/jobs/search/?keywords=Java%20Full%20Stack%20Fresher" },
-                    { name: "Naukri Feed", logo: "💼", url: "https://www.naukri.com/java-freshers-jobs-in-delhi-ncr" },
-                    { name: "Wellfound", logo: "✌️", url: "https://wellfound.com" },
-                    { name: "Indeed Stream", logo: "🎯", url: "https://in.indeed.com" },
-                    { name: "Internshala Core", logo: "🚀", url: "https://internshala.com" },
-                    { name: "Remotely Tech", logo: "🏠", url: "https://remotely.jobs" },
-                    { name: "Freshersworld", logo: "🌎", url: "https://www.freshersworld.com" },
-                    { name: "Unstop Hub", logo: "🏆", url: "https://unstop.com" }
+                    { name: "LinkedIn Pro", logo: "🔗", baseDir: `https://www.linkedin.com/jobs/search/?keywords=${encodedRole}&location=${encodedCity}` },
+                    { name: "Naukri Feed", logo: "💼", baseDir: `https://www.naukri.com/${encodedRole}-jobs-in-${encodedCity}` },
+                    { name: "Indeed Stream", logo: "🎯", baseDir: `https://in.indeed.com/jobs?q=${encodedRole}&l=${encodedCity}` },
+                    { name: "Internshala Core", logo: "🚀", baseDir: `https://internshala.com/internships/keywords-${encodedRole}` },
+                    { name: "Wellfound", logo: "✌️", baseDir: `https://wellfound.com/role/l/software-engineer` },
+                    { name: "Remotely Tech", logo: "🏠", baseDir: `https://remotely.jobs/search?q=${encodedRole}` },
+                    { name: "Freshersworld", logo: "🌎", baseDir: `https://www.freshersworld.com/jobs/jobsearch` },
+                    { name: "Unstop Hub", logo: "🏆", baseDir: `https://unstop.com/jobs` }
                 ];
 
                 platforms.forEach((platform, idx) => {
-                    const titleText = responseJobPool[idx]?.title || "Associate Software Engineer";
-                    const companyText = responseJobPool[idx]?.company || "Tech Ecosystem Enterprise Node";
-                    const locationText = responseJobPool[idx]?.location || "Delhi NCR";
+                    const titleText = responseJobPool[idx]?.title || `${sampleTitle}`;
+                    const companyText = responseJobPool[idx]?.company || "Verified Corporate Workspace";
+                    const locationText = responseJobPool[idx]?.location || `${targetCities}`;
                     
                     jobsContainer.innerHTML += `
                         <div class="bg-slate-950 p-4 rounded-xl border border-slate-800 hover:border-slate-700 transition flex justify-between items-center">
@@ -446,7 +468,7 @@
                                 <h4 class="text-xs font-bold text-white">${titleText}</h4>
                                 <p class="text-[10.5px] text-slate-500 mt-0.5">${companyText} | ${locationText}</p>
                             </div>
-                            <a href="${platform.url}" target="_blank" class="bg-slate-800 hover:bg-slate-700 text-cyan-400 text-[10px] font-bold px-3 py-2 rounded-lg transition shrink-0 ml-2">Apply ↗</a>
+                            <a href="${platform.baseDir}" target="_blank" class="bg-slate-800 hover:bg-slate-700 text-cyan-400 text-[10px] font-bold px-3 py-2 rounded-lg transition shrink-0 ml-2">Apply ↗</a>
                         </div>
                     `;
                 });
@@ -478,16 +500,40 @@
             }
         }
 
+        // 🛠️ FIXED: BACKGROUND CANVAS TRANSPARENCY OVERRIDE & DYNAMIC EXPORT FILENAME GENERATOR
         function downloadTailoredDocumentPdfAsset() {
             const element = document.getElementById("printableDocumentNodeFrame");
+            
+            if (!element || !element.innerHTML.trim()) {
+                alert("Workspace Canvas Frame is empty. Please compile an analysis sequence before downloading.");
+                return;
+            }
+
+            element.style.backgroundColor = "#ffffff";
+            element.style.color = "#000000";
+
+            const sanitizedFileName = (extractedUserFullName && extractedUserFullName !== "Applicant Profile") 
+                ? extractedUserFullName.trim().replace(/[^a-zA-Z0-9]/g, '_') 
+                : "Tailored_Production_Profile";
+
             const opt = {
-                margin:       0.2, 
-                filename:     'Umakant_Sharma_SinglePage_Resume.pdf',
-                image:        { type: 'jpeg', quality: 0.99 },
-                html2canvas:  { scale: 2.5, useCORS: true, logging: false },
+                margin:       [0.25, 0.3, 0.25, 0.3],
+                filename:     `${sanitizedFileName}_Tailored_Resume.pdf`,
+                image:        { type: 'jpeg', quality: 0.98 },
+                html2canvas:  { 
+                    scale: 2.5, 
+                    useCORS: true, 
+                    logging: false,
+                    backgroundColor: '#ffffff'
+                },
                 jsPDF:        { unit: 'in', format: 'letter', orientation: 'portrait' }
             };
-            html2pdf().set(opt).from(element).save();
+
+            html2pdf().set(opt).from(element).save().then(() => {
+                console.log("🚀 [PDF Engine] Single page asset rendered successfully.");
+            }).catch(err => {
+                console.error("❌ [PDF Engine] Rendering exception crashed stream:", err);
+            });
         }
     </script>
 </body>
